@@ -2,7 +2,7 @@ import numpy as np
 from typing import Dict
 from ray.rllib.env import BaseEnv
 from ray.rllib.policy import Policy
-import Evaluator.metrics_utils as metrics_utils
+import evaluator.metrics_utils as metrics_utils
 from ray.rllib.policy.sample_batch import SampleBatch
 from ray.rllib.agents.callbacks import DefaultCallbacks
 from ray.rllib.evaluation import MultiAgentEpisode, RolloutWorker

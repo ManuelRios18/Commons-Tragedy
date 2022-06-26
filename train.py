@@ -4,7 +4,7 @@ import json
 from ray import tune
 from examples.rllib.utils import env_creator
 from ray.rllib.policy.policy import PolicySpec
-from Evaluator.metrics_callback import MetricsCallback
+from evaluator.metrics_callback import MetricsCallback
 from ray.rllib.agents.registry import get_trainer_class
 from examples.tutorial.harvest.configs.environment import harvest_uniandes as game
 
