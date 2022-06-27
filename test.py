@@ -15,8 +15,8 @@ from adapters.ray_model_policy import RayModelPolicy
 agent_algorithm = "A3C"
 substrate_name = "commons_harvest_open"
 load_dir = "logs/"
-checkpoint_path = "/A3C/A3C_meltingpot_87b20_00000_0_2022-06-26_19-17-29/checkpoint_000015/checkpoint-15"
-
+# checkpoint_path = "/A3C/A3C_meltingpot_87b20_00000_0_2022-06-26_19-17-29/checkpoint_000015/checkpoint-15"
+checkpoint_path = "/A3C/A3C_meltingpot_b6251_00000_0_2022-06-27_00-12-16/checkpoint_001062/checkpoint-1062"
 env_creator = EnvCreator()
 
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())

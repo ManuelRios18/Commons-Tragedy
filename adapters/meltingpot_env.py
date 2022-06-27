@@ -2,7 +2,7 @@
 
 import dmlab2d
 from gym import spaces
-from examples import utils
+from adapters import adapter_utils
 from ray.rllib.env import multi_agent_env
 
 
@@ -25,7 +25,7 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
   def reset(self):
     """See base class."""
     timestep = self._env.reset()
-    return utils.timestep_to_observations(timestep)
+    return adapter_utils.timestep_to_observations(timestep)
 
   def step(self, action):
     """See base class."""
@@ -36,9 +36,9 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
         for index, agent_id in enumerate(self._ordered_agent_ids)
     }
     done = {'__all__': True if timestep.last() else False}
-    info = utils._timestep_to_world_observations(timestep)
+    info = adapter_utils._timestep_to_world_observations(timestep)
 
-    observations = utils.timestep_to_observations(timestep)
+    observations = adapter_utils.timestep_to_observations(timestep)
     return observations, rewards, done, info
 
   def close(self):
@@ -51,9 +51,9 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
 
   def single_player_observation_space(self) -> spaces.Space:
     """The observation space for a single player in this environment."""
-    return utils.remove_world_observations_from_space(
-        utils.spec_to_space(self._env.observation_spec()[0]))
+    return adapter_utils.remove_world_observations_from_space(
+        adapter_utils.spec_to_space(self._env.observation_spec()[0]))
 
   def single_player_action_space(self):
     """The action space for a single player in this environment."""
-    return utils.spec_to_space(self._env.action_spec()[0])
+    return adapter_utils.spec_to_space(self._env.action_spec()[0])

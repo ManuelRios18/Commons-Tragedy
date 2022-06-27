@@ -12,12 +12,12 @@ class MetricsCallback(DefaultCallbacks):
     def on_episode_start(self, worker: RolloutWorker, base_env: BaseEnv,
                          policies: Dict[str, Policy],
                          episode: MultiAgentEpisode, **kwargs):
-        episode.hist_data["WHO_ZAPPED_WHO"] = list()
+        episode.hist_data["ZAP_COUNTER"] = [0]
 
     def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv,
                         episode: MultiAgentEpisode, **kwargs):
         world_data = episode.last_info_for("player_0")
-        episode.hist_data["WHO_ZAPPED_WHO"].append(world_data["WORLD.WHO_ZAPPED_WHO"])
+        episode.hist_data["ZAP_COUNTER"][0] += np.sum(world_data["WORLD.WHO_ZAPPED_WHO"])
         pass
 
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv,
@@ -25,12 +25,13 @@ class MetricsCallback(DefaultCallbacks):
                        **kwargs):
 
         # Get Zap data
-        T = len(episode.hist_data['WHO_ZAPPED_WHO'])
-        N = episode.hist_data["WHO_ZAPPED_WHO"][-1].shape[0]
-        n_zaps = np.sum(np.sum(np.vstack(episode.hist_data["WHO_ZAPPED_WHO"])))
+        world_data = episode.last_info_for("player_0")
+        T = 1000
+        N = 10
+
+        n_zaps = episode.hist_data["ZAP_COUNTER"][0]
         peacefulness = (N*T - n_zaps)/T
         episode.custom_metrics["peacefulness"] = peacefulness
-        episode.custom_metrics["n_zaps"] = n_zaps
 
         # Get Apple Data
         world_data = episode.last_info_for("player_0")
