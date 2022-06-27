@@ -1,21 +1,3 @@
-# Copyright 2020 DeepMind Technologies Limited.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     https://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""
-Runs the bots trained in self_play_train.py and renders in pygame.
-You must have saved some trained bots in folder load_dir.
-"""
-
 import copy
 import json
 import time
@@ -26,18 +8,22 @@ from ray.rllib.agents.registry import get_trainer_class
 from ray.rllib.policy.policy import PolicySpec
 from ray.tune.registry import register_env
 from examples.tutorial.harvest.configs.environment import harvest_uniandes as game
-from examples.rllib.utils import env_creator, RayModelPolicy
+from adapters.env_creator import EnvCreator
+from adapters.ray_model_policy import RayModelPolicy
 
 
 agent_algorithm = "A3C"
 substrate_name = "commons_harvest_open"
-load_dir = "/home/manuel/Documents/Research/Commons Tragedy/logs"  # set equal to save_dir in self_play_train.py
+load_dir = "logs/"
+checkpoint_path = "/A3C/A3C_meltingpot_87b20_00000_0_2022-06-26_19-17-29/checkpoint_000015/checkpoint-15"
+
+env_creator = EnvCreator()
 
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())
 trainer_config["env_config"] = game.get_config()
-register_env("meltingpot", env_creator)
+register_env("meltingpot", env_creator.create_env)
 
-test_env = env_creator(trainer_config["env_config"])
+test_env = env_creator.create_env(trainer_config["env_config"])
 obs_space = test_env.single_player_observation_space()
 act_space = test_env.single_player_action_space()
 
@@ -57,8 +43,6 @@ with open(load_dir + '/config.json', 'r') as f:
 
 trainer = get_trainer_class(agent_algorithm)(
   env="meltingpot", config=trainer_config)
-
-checkpoint_path = "/A3C/A3C_meltingpot_4bf13_00000_0_2022-06-15_19-14-32/checkpoint_010992/checkpoint-10992"
 
 trainer.restore(load_dir + checkpoint_path)
 env = test_env._env
@@ -99,7 +83,6 @@ for sim_step in range(1000):
           observation=timestep.observation[i])
 
       actions[i], states[i] = bot.step(timestep_bot, states[i])
-      # actions[i] = random.choice(list(range(10)))
 
     timestep = env.step(actions)
     acum = 0

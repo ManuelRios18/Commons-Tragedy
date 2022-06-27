@@ -1,22 +1,26 @@
 import ray
 import copy
 import json
+import platform
 from ray import tune
-from examples.rllib.utils import env_creator
+from adapters.env_creator import EnvCreator
 from ray.rllib.policy.policy import PolicySpec
 from evaluator.metrics_callback import MetricsCallback
 from ray.rllib.agents.registry import get_trainer_class
 from examples.tutorial.harvest.configs.environment import harvest_uniandes as game
 
+
 agent_algorithm = "A3C"
 num_cpus = 1
 save_dir = "logs"
 
+n_gpus = 0 if platform.system() == "Darwin" else 1
+
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())
 trainer_config["env_config"] = game.get_config()
 
-
-test_env = env_creator(trainer_config["env_config"])
+env_creator = EnvCreator()
+test_env = env_creator.create_env(trainer_config["env_config"])
 obs_space = test_env.single_player_observation_space()
 act_space = test_env.single_player_action_space()
 
@@ -34,7 +38,7 @@ model = {"conv_filters": [[16, [8, 8], 8], [128, [11, 11], 1]],
 config = {"env": "meltingpot",
           "callbacks": MetricsCallback,
           "env_config": trainer_config["env_config"],
-          "num_gpus": 0,
+          "num_gpus": n_gpus,
           "num_workers": 1,
           "horizon": trainer_config["env_config"].lab2d_settings["maxEpisodeLengthFrames"],
           "batch_mode": "complete_episodes",
@@ -63,7 +67,7 @@ config = {"env": "meltingpot",
 stop = {"timesteps_total": 15000000}
 
 
-tune.register_env("meltingpot", env_creator)
+tune.register_env("meltingpot", env_creator.create_env)
 ray.init(num_cpus=num_cpus + 1)
 
 with open(save_dir + "/config.json", "w") as f:
