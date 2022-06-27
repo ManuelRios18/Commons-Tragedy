@@ -25,9 +25,8 @@ class MetricsCallback(DefaultCallbacks):
                        **kwargs):
 
         # Get Zap data
-        world_data = episode.last_info_for("player_0")
-        T = 1000
-        N = 10
+        T = episode.length
+        N = len(episode.get_agents())
 
         n_zaps = episode.hist_data["ZAP_COUNTER"][0]
         peacefulness = (N*T - n_zaps)/T
@@ -38,7 +37,7 @@ class MetricsCallback(DefaultCallbacks):
         total_consumption = np.sum(world_data["WORLD.CONSUMPTION_BY_PLAYER"])
         gini_score = metrics_utils.gini(world_data["WORLD.CONSUMPTION_BY_PLAYER"])
         episode.custom_metrics["Efficiency"] = total_consumption/N
-        episode.custom_metrics["Equality"] = gini_score
+        episode.custom_metrics["Equality"] = 1-gini_score
 
     def on_sample_end(self, worker: RolloutWorker, samples: SampleBatch,
                       **kwargs):
