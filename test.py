@@ -16,7 +16,11 @@ agent_algorithm = "A3C"
 substrate_name = "commons_harvest_open"
 load_dir = "logs/"
 # checkpoint_path = "/A3C/A3C_meltingpot_87b20_00000_0_2022-06-26_19-17-29/checkpoint_000015/checkpoint-15"
-checkpoint_path = "/A3C/A3C_meltingpot_b6251_00000_0_2022-06-27_00-12-16/checkpoint_001062/checkpoint-1062"
+_id = 11200
+exp_name = "A3C_meltingpot_b5aba_00000_0_2022-06-27_12-58-11"
+checkpoint_path = f"/A3C/{exp_name}/checkpoint_{str(_id).zfill(6)}/checkpoint-{_id}"
+
+
 env_creator = EnvCreator()
 
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())
@@ -90,5 +94,8 @@ for sim_step in range(1000):
         reward_hist[i] += float(r)
         acum += reward_hist[i]
     reward_hist["total"] = acum
-    time.sleep(0.1)
+    if sim_step%100 == 0:
+        print(f"step ", sim_step)
+    #time.sleep(0.05)
+
 

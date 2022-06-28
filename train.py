@@ -64,7 +64,7 @@ config = {"env": "meltingpot",
                 }
               }
 
-stop = {"timesteps_total": 15000000}
+stop = {"timesteps_total": 16000000}
 
 
 tune.register_env("meltingpot", env_creator.create_env)
@@ -79,6 +79,6 @@ with open(save_dir + "/config.json", "w") as f:
     json.dump(config_to_store, f)
 
 results = tune.run(agent_algorithm, config=config, stop=stop, local_dir=save_dir,
-         checkpoint_freq=1,
-         keep_checkpoints_num=1,
+         checkpoint_freq=200,
+         keep_checkpoints_num=None, # 1 to debug
          checkpoint_score_attr='training_iteration')
