@@ -10,8 +10,8 @@ from adapters.ray_model_policy import RayModelPolicy
 
 agent_algorithm = "A3C"
 substrate_name = "commons_harvest_open"
-experiment_name = "A3C_meltingpot_4e667_00000_0_2022-06-29_13-14-24"
-checkpoint_id = 18
+experiment_name = "A3C_meltingpot_b5aba_00000_0_2022-06-27_12-58-11"
+checkpoint_id = 1600
 
 
 checkpoint_path = os.path.join(agent_algorithm, experiment_name,
@@ -21,6 +21,7 @@ env_creator = EnvCreator()
 register_env("meltingpot", env_creator.create_env)
 
 stored_config = pickle.load(open(os.path.join("logs", agent_algorithm, experiment_name, "params.pkl"), 'rb'))
+stored_config["evaluation_interval"] = None
 
 trainer = get_trainer_class(agent_algorithm)(env="meltingpot", config=stored_config)
 trainer.restore(os.path.join("logs", checkpoint_path))
