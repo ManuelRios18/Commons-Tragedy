@@ -13,7 +13,8 @@ agent_algorithm = "A3C"
 n_steps = 16000000
 checkpoint_freq = 1
 keep_checkpoints_num = 1
-num_cpus = 1
+num_workers = 1
+
 
 n_gpus = 0 if platform.system() == "Darwin" else 1
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())
@@ -40,7 +41,7 @@ config = {
     "callbacks": MetricsCallback,
     "env_config": trainer_config["env_config"],
     "num_gpus": n_gpus,
-    "num_workers": 1,
+    "num_workers": num_workers,
     "horizon": trainer_config["env_config"].lab2d_settings["maxEpisodeLengthFrames"],
     "batch_mode": "complete_episodes",
     "rollout_fragment_length": 1,
@@ -65,7 +66,7 @@ config = {
 
 
 tune.register_env("meltingpot", env_creator.create_env)
-ray.init(num_cpus=num_cpus + 1)
+ray.init()
 
 results = tune.run(agent_algorithm,
                    stop={"timesteps_total": n_steps},

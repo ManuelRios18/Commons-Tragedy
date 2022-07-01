@@ -10,8 +10,8 @@ from adapters.ray_model_policy import RayModelPolicy
 
 agent_algorithm = "A3C"
 substrate_name = "commons_harvest_open"
-experiment_name = "A3C_meltingpot_b5aba_00000_0_2022-06-27_12-58-11"
-checkpoint_id = 1600
+experiment_name = "A3C_meltingpot_382a1_00000_0_2022-06-29_15-51-16"
+checkpoint_id = 13
 
 
 checkpoint_path = os.path.join(agent_algorithm, experiment_name,
