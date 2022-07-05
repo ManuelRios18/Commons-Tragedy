@@ -15,7 +15,6 @@ checkpoint_freq = 1
 keep_checkpoints_num = 1
 num_workers = 1
 
-
 n_gpus = 0 if platform.system() == "Darwin" else 1
 trainer_config = copy.deepcopy(get_trainer_class(agent_algorithm).get_default_config())
 trainer_config["env_config"] = game.get_config()
