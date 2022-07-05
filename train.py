@@ -6,8 +6,7 @@ from adapters.env_creator import EnvCreator
 from ray.rllib.policy.policy import PolicySpec
 from evaluator.metrics_callback import MetricsCallback
 from ray.rllib.agents.registry import get_trainer_class
-from examples.tutorial.harvest.configs.environment import harvest_uniandes as game
-
+from substrates import commons_harvest_uniandes as game
 
 agent_algorithm = "A3C"
 n_steps = 16000000
