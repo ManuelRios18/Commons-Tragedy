@@ -98,6 +98,7 @@ class Trainer:
     def start_training(self):
         ray.init()
         results = tune.run(self.agent_algorithm,
+                           name=self.experiment_name,
                            stop={"timesteps_total": self.n_steps},
                            config=self.config,
                            local_dir="logs",
