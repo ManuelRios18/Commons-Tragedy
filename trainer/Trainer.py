@@ -13,7 +13,7 @@ from ray.rllib.agents.registry import get_trainer_class
 class Trainer:
 
     def __init__(self, model_name, substrate_name, agent_algorithm, n_steps, checkpoint_freq, keep_checkpoints_num,
-                 num_workers, experiment_name=None):
+                 num_workers, experiment_name=None, max_gpus=None):
         self.model_name = model_name
         self.substrate_name = substrate_name
         self.agent_algorithm = agent_algorithm
@@ -22,8 +22,9 @@ class Trainer:
         self.keep_checkpoints_num = keep_checkpoints_num
         self.num_workers = num_workers
         self.experiment_name = experiment_name
+        self.max_gpus = max_gpus
 
-        self.n_gpus = 0 if platform.system() == "Darwin" else len(tf.config.list_physical_devices("GPU"))
+        self.n_gpus = self.get_n_gpus()
         self.trainer_config = copy.deepcopy(get_trainer_class(self.agent_algorithm).get_default_config())
         self.game = substrates_handler.get_game(substrate_name)
         self.trainer_config["env_config"] = self.game.get_config()
@@ -36,6 +37,16 @@ class Trainer:
         self.config = self.get_config()
 
         tune.register_env("meltingpot", self.env_creator.create_env)
+
+    def get_n_gpus(self):
+        if platform.system() == "Darwin":
+            n_gpus = 0
+        else:
+            n_detected_gpus = len(tf.config.list_physical_devices("GPU"))
+            n_gpus = n_detected_gpus
+            if self.max_gpus is not None:
+                n_gpus = min(self.max_gpus, n_detected_gpus)
+        return n_gpus
 
     def get_model(self):
         if self.model_name == "large-model":
