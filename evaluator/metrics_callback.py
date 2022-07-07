@@ -29,7 +29,7 @@ class MetricsCallback(DefaultCallbacks):
         N = len(episode.get_agents())
 
         n_zaps = episode.hist_data["ZAP_COUNTER"][0]
-        peacefulness = (N*T - n_zaps)/T
+        peacefulness = (N*T - n_zaps)/N
         episode.custom_metrics["peacefulness"] = peacefulness
 
         # Get Apple Data

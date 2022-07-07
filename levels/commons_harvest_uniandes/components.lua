@@ -296,7 +296,7 @@ function Edible:onEnter(enteringGameObject, contactName)
       local sceneObject = self.gameObject.simulation:getSceneObject()
       local globalAppleTracker = (sceneObject:getComponent('GlobalAppleTracker'))
 
-      -- Increse the apple counter for the player
+      -- Increase the apple counter for the player
       local _consumptionByPlayer = (globalAppleTracker.consumptionByPlayer)
       local pc = _consumptionByPlayer(playerIndex):val()
       _consumptionByPlayer(playerIndex):fill(pc + 1)

@@ -1,4 +1,4 @@
-from trainer.Trainer import Trainer
+from trainer.trainer import Trainer
 
 
 model_name = "large-model"
