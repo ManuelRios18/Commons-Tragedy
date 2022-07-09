@@ -37,11 +37,12 @@ def text_display_fn(unused_timestep, unused_player_index: int) -> str:
 def main(argv):
   del argv  # Unused.
   install_substrate("commons_harvest_uniandes")
+  substrate_config = {"prob_type": "meltingpot", "map_name": "meltingpot"}
   level_playing_utils.run_episode(
       "WORLD.RGB",
       {},  # Settings overrides
       _ACTION_MAP,
-      game.get_config(),
+      game.get_config(substrate_config),
       level_playing_utils.RenderType.PYGAME,
       FLAGS.screen_width, FLAGS.screen_height, FLAGS.frames_per_second,
       verbose_fn if FLAGS.verbose else None,

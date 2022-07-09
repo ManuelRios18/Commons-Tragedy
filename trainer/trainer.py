@@ -13,7 +13,7 @@ from ray.rllib.agents.registry import get_trainer_class
 class Trainer:
 
     def __init__(self, model_name, substrate_name, agent_algorithm, n_steps, checkpoint_freq, keep_checkpoints_num,
-                 num_workers, experiment_name=None, max_gpus=None):
+                 num_workers, substrate_config, experiment_name=None, max_gpus=None):
         self.model_name = model_name
         self.substrate_name = substrate_name
         self.agent_algorithm = agent_algorithm
@@ -27,7 +27,7 @@ class Trainer:
         self.n_gpus = self.get_n_gpus()
         self.trainer_config = copy.deepcopy(get_trainer_class(self.agent_algorithm).get_default_config())
         self.game = substrates_handler.get_game(substrate_name)
-        self.trainer_config["env_config"] = self.game.get_config()
+        self.trainer_config["env_config"] = self.game.get_config(substrate_config)
 
         self.env_creator = EnvCreator()
         self.test_env = self.env_creator.create_env(self.trainer_config["env_config"])

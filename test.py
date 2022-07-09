@@ -8,19 +8,18 @@ from ray.rllib.agents.registry import get_trainer_class
 from adapters.env_creator import EnvCreator
 from adapters.ray_model_policy import RayModelPolicy
 
-agent_algorithm = "A3C"
-substrate_name = "commons_harvest_open"
-experiment_name = "A3C_meltingpot_382a1_00000_0_2022-06-29_15-51-16"
-checkpoint_id = 13
+experiment_name = "map_parolat_prob_meltingpot"
+experiment_id = "A3C_meltingpot_17dd2_00000_0_2022-07-09_18-08-50"
+checkpoint_id = 3
 
-
-checkpoint_path = os.path.join(agent_algorithm, experiment_name,
+agent_algorithm = experiment_id.split("_")[0]
+checkpoint_path = os.path.join(experiment_name, experiment_id,
                                f"checkpoint_{str(checkpoint_id).zfill(6)}",
                                f"checkpoint-{checkpoint_id}")
 env_creator = EnvCreator()
 register_env("meltingpot", env_creator.create_env)
 
-stored_config = pickle.load(open(os.path.join("logs", agent_algorithm, experiment_name, "params.pkl"), 'rb'))
+stored_config = pickle.load(open(os.path.join("logs", experiment_name, experiment_id, "params.pkl"), 'rb'))
 stored_config["evaluation_interval"] = None
 
 trainer = get_trainer_class(agent_algorithm)(env="meltingpot", config=stored_config)
