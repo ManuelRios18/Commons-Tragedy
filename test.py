@@ -9,8 +9,8 @@ from adapters.env_creator import EnvCreator
 from adapters.ray_model_policy import RayModelPolicy
 
 experiment_name = "map_parolat_prob_meltingpot"
-experiment_id = "A3C_meltingpot_17dd2_00000_0_2022-07-09_18-08-50"
-checkpoint_id = 3
+experiment_id = "A3C_meltingpot_d30c9_00000_0_2022-07-09_18-28-23"
+checkpoint_id = 21
 
 agent_algorithm = experiment_id.split("_")[0]
 checkpoint_path = os.path.join(experiment_name, experiment_id,
