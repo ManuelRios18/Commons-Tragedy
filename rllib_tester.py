@@ -1,14 +1,3 @@
-"""Simple example of setting up a multi-agent policy mapping.
-
-Control the number of agents and policies via --num-agents and --num-policies.
-
-This works with hundreds of agents and policies, but note that initializing
-many TF policies will take some time.
-
-Also, TF evals might slow down with large numbers of policies. To debug TF
-execution, set the TF_TIMELINE_DIR environment variable.
-"""
-
 import argparse
 import os
 import random
@@ -16,107 +5,128 @@ import random
 import ray
 from ray import tune
 from ray.rllib.examples.env.multi_agent import MultiAgentCartPole
-from ray.rllib.examples.models.shared_weights_model import (
-    SharedWeightsModel1,
-    SharedWeightsModel2,
-    TF2SharedWeightsModel,
-    TorchSharedWeightsModel,
-)
+from ray.rllib.examples.models.shared_weights_model import (SharedWeightsModel1, SharedWeightsModel2)
 from ray.rllib.models import ModelCatalog
 from ray.rllib.policy.policy import PolicySpec
 from ray.rllib.utils.framework import try_import_tf
 from ray.rllib.utils.test_utils import check_learning_achieved
 
+
+def gen_policy(i):
+    config = {
+        "model": {
+            "custom_model": ["model1", "model2"][i % 2],
+        },
+        "gamma": random.choice([0.95, 0.99]),
+    }
+    return PolicySpec(config=config)
+
+
 tf1, tf, tfv = try_import_tf()
 
-parser = argparse.ArgumentParser()
 
-parser.add_argument("--num-agents", type=int, default=4)
-parser.add_argument("--num-policies", type=int, default=2)
-parser.add_argument("--num-cpus", type=int, default=16)
-parser.add_argument(
-    "--framework",
-    choices=["tf", "tf2", "tfe", "torch"],
-    default="tf",
-    help="The DL framework specifier.",
-)
-parser.add_argument(
-    "--as-test",
-    action="store_true",
-    help="Whether this script should be run as a test: --stop-reward must "
-    "be achieved within --stop-timesteps AND --stop-iters.",
-)
-parser.add_argument(
-    "--stop-iters", type=int, default=200, help="Number of iterations to train."
-)
-parser.add_argument(
-    "--stop-timesteps", type=int, default=100000, help="Number of timesteps to train."
-)
-parser.add_argument(
-    "--stop-reward", type=float, default=150.0, help="Reward at which we stop training."
-)
-
-def main(n_workers):
-    args = parser.parse_args()
-
-    ray.init(num_cpus=16)
-
+def experiment(exp_config):
+    algo = exp_config.get("algo")
+    timesteps_total = exp_config.get("timesteps_total")
+    n_workers = exp_config.get("n_workers")
+    num_agents = exp_config.get("num_agents")
+    n_cpus_per_worker = exp_config.get("n_cpus_per_worker")
+    ray.init()
     # Register the models to use.
-    if args.framework == "torch":
-        mod1 = mod2 = TorchSharedWeightsModel
-    elif args.framework in ["tfe", "tf2"]:
-        mod1 = mod2 = TF2SharedWeightsModel
-    else:
-        mod1 = SharedWeightsModel1
-        mod2 = SharedWeightsModel2
+
+    mod1 = SharedWeightsModel1
+    mod2 = SharedWeightsModel2
     ModelCatalog.register_custom_model("model1", mod1)
     ModelCatalog.register_custom_model("model2", mod2)
 
-    # Each policy can have a different configuration (including custom model).
-    def gen_policy(i):
-        config = {
-            "model": {
-                "custom_model": ["model1", "model2"][i % 2],
-            },
-            "gamma": random.choice([0.95, 0.99]),
-        }
-        return PolicySpec(config=config)
 
-    # Setup PPO with an ensemble of `num_policies` different policies.
-    policies = {"policy_{}".format(i): gen_policy(i) for i in range(args.num_policies)}
+    policies = {"policy_{}".format(i): gen_policy(i) for i in range(num_agents)}
     policy_ids = list(policies.keys())
 
     def policy_mapping_fn(agent_id, episode, worker, **kwargs):
         pol_id = random.choice(policy_ids)
         return pol_id
+
     config = {
         "env": MultiAgentCartPole,
         "env_config": {
-            "num_agents": args.num_agents,
+            "num_agents": num_agents,
         },
         # Use GPUs iff `RLLIB_NUM_GPUS` env var set to > 0.
-        "num_gpus": 1,
+        "num_gpus": 0,
         "num_workers": n_workers,
+        "num_cpus_per_worker": 0.5,
         #"num_sgd_iter": 10,
         "multiagent": {
             "policies": policies,
             "policy_mapping_fn": policy_mapping_fn,
         },
-        "framework": args.framework,
+        "framework": "tf",
     }
     stop = {
-        "timesteps_total": 200000,
+        "timesteps_total": timesteps_total,
     }
-    results = tune.run("A3C", name=f"test_A3C_{n_workers}_workers", stop=stop, config=config,
-                       local_dir="logs", verbose=1)
 
-    if args.as_test:
-        check_learning_achieved(results, args.stop_reward)
+    results = tune.run(algo, name=f"test_{algo}_{n_workers}_workers_{n_cpus_per_worker}_cpus", stop=stop, config=config,
+                       local_dir="logs", verbose=3)
     ray.shutdown()
 
-if __name__ == "__main__":
-    #main(1)
-    main(5)
-    # for n_workers in range(2, 6):
-    #     for _ in range(3):
-    #         main(n_workers)
+
+timesteps_total = 100000
+num_agents = 10
+
+experiment_configs = [
+    {"algo": "PPO",
+     "timesteps_total": timesteps_total,
+     "n_workers": 1,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "A3C",
+     "timesteps_total": timesteps_total,
+     "n_workers": 1,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "PPO",
+     "timesteps_total": timesteps_total,
+     "n_workers": 1,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 5},
+    {"algo": "A3C",
+     "timesteps_total": timesteps_total,
+     "n_workers": 1,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 5},
+    {"algo": "PPO",
+     "timesteps_total": timesteps_total,
+     "n_workers": 7,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "A3C",
+     "timesteps_total": timesteps_total,
+     "n_workers": 7,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "PPO",
+     "timesteps_total": timesteps_total,
+     "n_workers": 6,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "A3C",
+     "timesteps_total": timesteps_total,
+     "n_workers": 6,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 1},
+    {"algo": "PPO",
+     "timesteps_total": timesteps_total,
+     "n_workers": 14,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 0.5},
+    {"algo": "A3C",
+     "timesteps_total": timesteps_total,
+     "n_workers": 14,
+     "num_agents": num_agents,
+     "n_cpus_per_worker": 0.5},
+]
+
+for experiment_config in experiment_configs:
+    experiment(experiment_config)

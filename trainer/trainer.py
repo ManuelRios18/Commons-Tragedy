@@ -13,7 +13,7 @@ from ray.rllib.agents.registry import get_trainer_class
 class Trainer:
 
     def __init__(self, model_name, substrate_name, agent_algorithm, n_steps, checkpoint_freq, keep_checkpoints_num,
-                 num_workers, substrate_config, experiment_name=None, max_gpus=None):
+                 num_workers, num_cpus_per_worker, substrate_config, experiment_name=None, max_gpus=None):
         self.model_name = model_name
         self.substrate_name = substrate_name
         self.agent_algorithm = agent_algorithm
@@ -21,6 +21,7 @@ class Trainer:
         self.checkpoint_freq = checkpoint_freq
         self.keep_checkpoints_num = keep_checkpoints_num
         self.num_workers = num_workers
+        self.num_cpus_per_worker = num_cpus_per_worker
         self.experiment_name = experiment_name
         self.max_gpus = max_gpus
 
@@ -70,6 +71,7 @@ class Trainer:
             "callbacks": MetricsCallback,
             "env_config": self.trainer_config["env_config"],
             "num_gpus": self.n_gpus,
+            "num_cpus_per_worker": self.num_cpus_per_worker,
             "num_workers": self.num_workers,
             "horizon": self.trainer_config["env_config"].lab2d_settings["maxEpisodeLengthFrames"],
             "batch_mode": "complete_episodes",
