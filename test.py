@@ -8,9 +8,12 @@ from ray.rllib.agents.registry import get_trainer_class
 from adapters.env_creator import EnvCreator
 from adapters.ray_model_policy import RayModelPolicy
 
-experiment_name = "map_parolat_prob_meltingpot"
-experiment_id = "A3C_meltingpot_d30c9_00000_0_2022-07-09_18-28-23"
-checkpoint_id = 21
+#experiment_name = "map_meltingpot_prob_meltingpot_independent_False"
+#experiment_id = "PPO_meltingpot_f365e_00000_0_2022-07-26_20-10-49"
+#checkpoint_id = 2
+experiment_name = "map_meltingpot_prob_meltingpot_independent_True"
+experiment_id = "PPO_meltingpot_546ee_00000_0_2022-07-26_20-13-32"
+checkpoint_id = 20
 
 agent_algorithm = experiment_id.split("_")[0]
 checkpoint_path = os.path.join(experiment_name, experiment_id,
@@ -26,7 +29,13 @@ trainer = get_trainer_class(agent_algorithm)(env="meltingpot", config=stored_con
 trainer.restore(os.path.join("logs", checkpoint_path))
 
 env = env_creator.create_env(stored_config["env_config"]).get_dmlab2d_env()
-bots = [RayModelPolicy(trainer, "av")] * stored_config["env_config"]["num_players"]
+
+policy_keys = list(trainer.config["multiagent"]["policies"].keys())
+num_players = stored_config["env_config"]["num_players"]
+if len(policy_keys) == 1:
+    bots = [RayModelPolicy(trainer, policy_keys[0])] * num_players
+else:
+    bots = [RayModelPolicy(trainer, policy_key) for policy_key in policy_keys]
 
 timestep = env.reset()
 states = [bot.initial_state() for bot in bots]
