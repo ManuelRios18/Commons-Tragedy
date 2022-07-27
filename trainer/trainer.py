@@ -13,7 +13,8 @@ from ray.rllib.agents.registry import get_trainer_class
 class Trainer:
 
     def __init__(self, model_name, substrate_name, agent_algorithm, n_steps, checkpoint_freq, keep_checkpoints_num,
-                 num_workers, num_cpus_per_worker, substrate_config, experiment_name=None, max_gpus=None):
+                 num_workers, num_cpus_per_worker, substrate_config, independent_learners=False,
+                 experiment_name=None, max_gpus=None):
         self.model_name = model_name
         self.substrate_name = substrate_name
         self.agent_algorithm = agent_algorithm
@@ -22,6 +23,7 @@ class Trainer:
         self.keep_checkpoints_num = keep_checkpoints_num
         self.num_workers = num_workers
         self.num_cpus_per_worker = num_cpus_per_worker
+        self.independent_learners = independent_learners
         self.experiment_name = experiment_name
         self.max_gpus = max_gpus
 
@@ -82,20 +84,35 @@ class Trainer:
             "evaluation_interval": 50,
             "evaluation_duration": 1,
             "evaluation_duration_unit": "episodes",
-            "multiagent":
-                {
-                    "policies": {
-                        "av": PolicySpec(
-                            policy_class=None,
-                            observation_space=self.obs_space,
-                            action_space=self.act_space,
-                            config={}),
-                    },
-                    "policy_mapping_fn": lambda agent_id, episode, worker, **kwargs: "av",
-                }
+            "multiagent": self.define_policies()
         }
 
         return config
+
+    def define_policies(self):
+        if self.independent_learners:
+            result = {
+                "policies": {
+                    f"player_{agent_num}": PolicySpec(
+                        policy_class=None,
+                        observation_space=self.obs_space,
+                        action_space=self.act_space,
+                        config={})
+                    for agent_num in range(self.test_env._num_players)},
+                "policy_mapping_fn": lambda agent_id, episode, worker, **kwargs: f"{agent_id}"
+            }
+        else:
+            result = {
+                "policies": {
+                    "av": PolicySpec(
+                        policy_class=None,
+                        observation_space=self.obs_space,
+                        action_space=self.act_space,
+                        config={}),
+                },
+                "policy_mapping_fn": lambda agent_id, episode, worker, **kwargs: "av",
+            }
+        return result
 
     def start_training(self):
         ray.init()
