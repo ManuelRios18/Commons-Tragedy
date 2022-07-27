@@ -483,7 +483,7 @@ def get_regrowth_proba(prob_type, custom_probs):
 
 
 def get_map_layout(map_name):
-    assert map_name in ["parolat", "meltingpot"], "invalid map name"
+    assert map_name in ["parolat", "meltingpot", "3_player_map"], "invalid map name"
     if map_name == "parolat":
         num_players = 10
         beam_length = 10
@@ -511,6 +511,26 @@ W     AAA   A A  AAA      AAA  A  P      W
 W A    A     AAA  A        A       P P P W
 W             A                  P  P  P W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+"""
+    elif map_name == "3_player_map":
+        num_players = 3
+        beam_length = 3
+        beam_radius = 1
+        ascii_map = """
+WWWWWWWWWWWWW
+W           W
+W           W
+W P   A     W
+W    AAA    W
+W   A A A   W
+W  AAA AAA  W
+W   A   A P W
+W      A    W
+W     AAA   W
+W      A    W
+W P         W
+W           W
+WWWWWWWWWWWWW
 """
     else:
         num_players = 16
