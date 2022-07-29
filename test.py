@@ -11,9 +11,9 @@ from adapters.ray_model_policy import RayModelPolicy
 #experiment_name = "map_meltingpot_prob_meltingpot_independent_False"
 #experiment_id = "PPO_meltingpot_f365e_00000_0_2022-07-26_20-10-49"
 #checkpoint_id = 2
-experiment_name = "map_meltingpot_prob_meltingpot_independent_True"
-experiment_id = "PPO_meltingpot_546ee_00000_0_2022-07-26_20-13-32"
-checkpoint_id = 20
+experiment_name = "map_single_agent_small_prob_meltingpot_independent_True"
+experiment_id = "PPO_meltingpot_0a7b4_00000_0_2022-07-28_18-50-21"
+checkpoint_id = 6
 
 agent_algorithm = experiment_id.split("_")[0]
 checkpoint_path = os.path.join(experiment_name, experiment_id,
