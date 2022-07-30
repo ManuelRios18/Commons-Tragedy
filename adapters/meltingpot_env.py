@@ -23,17 +23,20 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
     self.observation_space = spaces.Dict({key: value for key, value in self.single_player_observation_space().items() if key == "RGB"})
 
     self.action_space = self.single_player_action_space()
+    self.world_view = None
     super().__init__()
 
   def reset(self):
     """See base class."""
     timestep = self._env.reset()
+    self.world_view = timestep.observation[0]["WORLD.RGB"]
     return adapter_utils.timestep_to_observations(timestep)
 
   def step(self, action):
     """See base class."""
     actions = [action[agent_id] for agent_id in self._ordered_agent_ids]
     timestep = self._env.step(actions)
+    self.world_view = timestep.observation[0]["WORLD.RGB"]
     rewards = {
         agent_id: timestep.reward[index]
         for index, agent_id in enumerate(self._ordered_agent_ids)

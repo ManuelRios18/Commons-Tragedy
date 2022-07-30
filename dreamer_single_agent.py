@@ -1,6 +1,4 @@
-import gym
 import pathlib
-import gym_minigrid
 import ruamel.yaml as yaml
 import dreamerv2.api as dv2
 import substrates as substrates_handler
@@ -22,7 +20,7 @@ atari_config = {
     "encoder": {"mlp_keys": "$^", "cnn_keys": "RGB", "act": "elu", "norm": "none", "cnn_depth": 48, "cnn_kernels": [4, 4, 4, 4], "mlp_layers": [400, 400, 400, 400]},
     "decoder":  {"mlp_keys": '$^', "cnn_keys": 'RGB', "act": "elu", "norm": "none", "cnn_depth": 48, "cnn_kernels": [5, 5, 6, 6], "mlp_layers": [400, 400, 400, 400]},
     "time_limit": 27000,
-    "action_repeat": 4,
+    "action_repeat": 1,
     "steps": 5e7,
     "eval_every": 2.5e5,
     "log_every": 1e4,
