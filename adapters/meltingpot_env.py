@@ -20,6 +20,9 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
         for index in range(self._num_players)
     ]
     self._agent_ids = set(self._ordered_agent_ids)
+    self.observation_space = spaces.Dict({key: value for key, value in self.single_player_observation_space().items() if key == "RGB"})
+
+    self.action_space = self.single_player_action_space()
     super().__init__()
 
   def reset(self):
