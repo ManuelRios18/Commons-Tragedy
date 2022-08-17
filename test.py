@@ -1,8 +1,10 @@
 import os
 import pickle
 import dm_env
+import time
 import numpy as np
 from dmlab2d.ui_renderer import pygame
+import substrates as substrates_handler
 from ray.tune.registry import register_env
 from ray.rllib.agents.registry import get_trainer_class
 from adapters.env_creator import EnvCreator
@@ -11,9 +13,13 @@ from adapters.ray_model_policy import RayModelPolicy
 #experiment_name = "map_meltingpot_prob_meltingpot_independent_False"
 #experiment_id = "PPO_meltingpot_f365e_00000_0_2022-07-26_20-10-49"
 #checkpoint_id = 2
-experiment_name = "map_meltingpot_prob_meltingpot_independent_False"
-experiment_id = "PPO_meltingpot_f365e_00000_0_2022-07-26_20-10-49"
-checkpoint_id = 2
+substrate_name = "commons_harvest_uniandes"
+substrate_config = {"prob_type": "meltingpot",
+                    "map_name": "single_agent_small"}
+
+experiment_name = "map_single_agent_small_prob_meltingpot_independent_False"
+experiment_id = "R2D2_meltingpot_600c0_00000_0_2022-08-08_10-54-24"
+checkpoint_id = 129200
 
 agent_algorithm = experiment_id.split("_")[0]
 checkpoint_path = os.path.join(experiment_name, experiment_id,
@@ -27,7 +33,8 @@ stored_config["evaluation_interval"] = None
 
 trainer = get_trainer_class(agent_algorithm)(env="meltingpot", config=stored_config)
 trainer.restore(os.path.join("logs", checkpoint_path))
-
+game = substrates_handler.get_game(substrate_name)
+stored_config["env_config"] = game.get_config(substrate_config)
 env = env_creator.create_env(stored_config["env_config"]).get_dmlab2d_env()
 
 policy_keys = list(trainer.config["multiagent"]["policies"].keys())
@@ -46,7 +53,7 @@ pygame.init()
 pygame.display.set_caption('DM Lab2d')
 shape = env.observation_spec()[0]['WORLD.RGB'].shape
 game_display = pygame.display.set_mode((int(shape[1] * scale), int(shape[0] * scale)))
-
+total_score = 0
 for sim_step in range(1000):
     obs = timestep.observation[0]['WORLD.RGB']
     obs = np.transpose(obs, (1, 0, 2))
@@ -68,3 +75,6 @@ for sim_step in range(1000):
     timestep = env.step(actions)
     if sim_step%100 == 0:
         print(f"step ", sim_step)
+    total_score += timestep.reward[0]
+    print("Total score", total_score)
+    time.sleep(0.1)
