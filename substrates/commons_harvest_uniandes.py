@@ -483,7 +483,10 @@ def get_regrowth_proba(prob_type, custom_probs):
 
 
 def get_map_layout(map_name):
-    assert map_name in ["parolat", "meltingpot", "3_player_map", "single_agent_small"], "invalid map name"
+    assert map_name in ["parolat", "meltingpot", "3_player_map", "single_agent_small",
+                        "single_agent_large", "single_agent_large_9_patch"], \
+        "invalid map name"
+
     if map_name == "parolat":
         num_players = 10
         beam_length = 10
@@ -532,6 +535,58 @@ W P         W
 W           W
 WWWWWWWWWWWWW
 """
+    elif map_name == "single_agent_large_9_patch":
+        num_players = 1
+        beam_length = 3
+        beam_radius = 1
+        ascii_map = """
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W   A                       A                           W
+W  AAA          A          AAA           A              W
+W AAAAA        AAA        AAAAA         AAA             W
+W  AAA        AAAAA        AAA         AAAAA            W
+W   A          AAA          A    A      AAA             W
+W               A               AAA      A      A       W
+W   A                  A       AAAAA           AAA      W
+W  AAA       A        AAA       AAA           AAAAA     W
+W AAAAA     AAA      AAAAA       A             AAA      W
+W  AAA     AAAAA      AAA                       A       W
+W   A       AAA        A     P         A                W
+W            A                        AAA      A        W
+W     A            A          A      AAAAA    AAA       W
+W    AAA          AAA        AAA      AAA    AAAAA      W
+W   AAAAA        AAAAA      AAAAA      A      AAA       W
+W    AAA          AAA        AAA               A        W
+W     A            A          A                         W
+W                                                       W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+        """
+    elif map_name == "single_agent_large":
+        num_players = 1
+        beam_length = 3
+        beam_radius = 1
+        ascii_map = """
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+W                                 A                     W
+W  A                             AAA                    W
+W AAA   A       A         A       A      A              W
+W  A   AAA     AAA       AAA            AAA             W
+W       A       A         A              A              W
+W                  A             A                      W
+W  A       A      AAA           AAA             A       W
+W AAA     AAA      A   A         A             AAA      W
+W  A       A          AAA  P           A        A       W
+W       A          A   A       A      AAA               W
+W      AAA        AAA         AAA      A                W
+W       A          A           A               A        W
+W                                             AAA       W
+W     A            A           A               A        W
+W    AAA    A     AAA         AAA         A             W
+W     A    AAA     A      A    A         AAA            W
+W           A            AAA              A             W
+W                         A                             W
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+    """
     elif map_name == "single_agent_small":
         num_players = 1
         beam_length = 3
