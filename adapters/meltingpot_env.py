@@ -13,6 +13,7 @@ class MeltingPotEnv(multi_agent_env.MultiAgentEnv):
   """An adapter between the Melting Pot substrates and RLLib MultiAgentEnv."""
 
   def __init__(self, env: dmlab2d.Environment):
+    self.is_meltingpot_env = True
     self._env = env
     self._num_players = len(self._env.observation_spec())
     self._ordered_agent_ids = [
