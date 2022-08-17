@@ -17,7 +17,7 @@ class MetricsCallback(DefaultCallbacks):
     def on_episode_step(self, worker: RolloutWorker, base_env: BaseEnv,
                         episode: MultiAgentEpisode, **kwargs):
         world_data = episode.last_info_for("player_0")
-        episode.hist_data["ZAP_COUNTER"][0] += np.sum(world_data["WORLD.WHO_ZAPPED_WHO"])
+        episode.hist_data["ZAP_COUNTER"][0] += np.sum(world_data.get("WORLD.WHO_ZAPPED_WHO", 0))
         pass
 
     def on_episode_end(self, worker: RolloutWorker, base_env: BaseEnv,
@@ -34,8 +34,8 @@ class MetricsCallback(DefaultCallbacks):
 
         # Get Apple Data
         world_data = episode.last_info_for("player_0")
-        total_consumption = np.sum(world_data["WORLD.CONSUMPTION_BY_PLAYER"])
-        gini_score = metrics_utils.gini(world_data["WORLD.CONSUMPTION_BY_PLAYER"])
+        total_consumption = np.sum(world_data.get("WORLD.CONSUMPTION_BY_PLAYER", 0))
+        gini_score = metrics_utils.gini(world_data.get("WORLD.CONSUMPTION_BY_PLAYER", [0, 0]))
         episode.custom_metrics["Efficiency"] = total_consumption/N
         episode.custom_metrics["Equality"] = 1-gini_score
 

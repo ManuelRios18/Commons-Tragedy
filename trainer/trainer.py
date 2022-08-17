@@ -3,6 +3,7 @@ import copy
 import platform
 from ray import tune
 import tensorflow as tf
+from ray.rllib.agents import dqn
 import substrates as substrates_handler
 from adapters.env_creator import EnvCreator
 from ray.rllib.policy.policy import PolicySpec
@@ -86,7 +87,10 @@ class Trainer:
             "evaluation_duration_unit": "episodes",
             "multiagent": self.define_policies()
         }
-
+        if self.agent_algorithm == "R2D2":
+            config.update({"replay_sequence_length": -1,
+                    "evaluation_interval": None,
+                    "evaluation_duration": 10})
         return config
 
     def define_policies(self):
