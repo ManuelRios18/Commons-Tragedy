@@ -13,7 +13,7 @@ substrate_config = {"prob_type": "meltingpot",
 env_creator = EnvCreator()
 game = substrates_handler.get_game(substrate_name)
 env = env_creator.create_env(game.get_config(substrate_config))
-
+testing_env = env_creator.create_env(game.get_config(substrate_config))
 default_config = yaml.safe_load(pathlib.Path('config/dreamer_configs.yaml').read_text())['defaults']
 atari_config = {
     "task": "atari_pong",
@@ -22,7 +22,7 @@ atari_config = {
     "time_limit": 27000,
     "action_repeat": 1,
     "steps": 5e7,
-    "eval_every": 2.5e5,
+    "eval_every": 20e3,
     "log_every": 1e4,
     "prefill": 50000,
     "train_every": 16,
@@ -42,4 +42,4 @@ config = dreamer_common.Config(default_config)
 
 #env = gym.make('MiniGrid-DoorKey-6x6-v0')
 #env = gym_minigrid.wrappers.RGBImgPartialObsWrapper(env)
-dv2.train(env, config)
+dv2.train(env, testing_env, config)
