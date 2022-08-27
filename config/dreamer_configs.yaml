@@ -1,7 +1,7 @@
 defaults:
 
   # Train Script
-  logdir: logs/dreamerv2_ma
+  logdir: logs/dreamerv2
   seed: 0
   task: atari_pong
   envs: 1

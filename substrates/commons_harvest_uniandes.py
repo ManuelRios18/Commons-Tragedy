@@ -592,21 +592,19 @@ WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
         beam_length = 3
         beam_radius = 1
         ascii_map = """
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-W              P             W
-W    P                   P   W
-W                            W
-W             A              W
-W            AAA             W
-W           AAAAA            W
-W            AAA             W
-W             A              W
-W                            W
-W                            W
-W   P                    P   W
-W             P              W
-WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-        """
+WWWWWWWWWWWWWWWWW
+W       P       W
+W P          P  W
+W       A       W
+W      AAA      W
+W     AAAAA     W
+W      AAA      W
+W       A       W
+W               W
+W P           P W
+W       P       W
+WWWWWWWWWWWWWWWWW
+"""
     elif map_name == "single_agent_small":
         num_players = 1
         beam_length = 3
@@ -623,7 +621,7 @@ W           W
 W      P    W
 W           W
 WWWWWWWWWWWWW
-    """
+"""
     else:
         num_players = 16
         beam_length = 3

@@ -16,6 +16,7 @@ env = env_creator.create_env(game.get_config(substrate_config))
 testing_env = env_creator.create_env(game.get_config(substrate_config))
 default_config = yaml.safe_load(pathlib.Path('config/dreamer_configs.yaml').read_text())['defaults']
 atari_config = {
+    "logdir": "logs/dreamerv2_test",
     "task": "atari_pong",
     "encoder": {"mlp_keys": "$^", "cnn_keys": "RGB", "act": "elu", "norm": "none", "cnn_depth": 48, "cnn_kernels": [4, 4, 4, 4], "mlp_layers": [400, 400, 400, 400]},
     "decoder":  {"mlp_keys": '$^', "cnn_keys": 'RGB', "act": "elu", "norm": "none", "cnn_depth": 48, "cnn_kernels": [5, 5, 6, 6], "mlp_layers": [400, 400, 400, 400]},
