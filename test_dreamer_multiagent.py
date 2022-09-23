@@ -14,7 +14,7 @@ from adapters.env_creator import EnvCreator
 substrate_name = "commons_harvest_uniandes"
 substrate_config = {"prob_type": "meltingpot",
                     "map_name": "two_agents_small"}
-weights_path = "logs/dreamerv2/variables.pkl"
+
 
 default_config = yaml.safe_load(pathlib.Path('config/dreamer_configs.yaml').read_text())['defaults']
 atari_config = {
@@ -62,14 +62,13 @@ step = dreamer_common.Counter()
 
 n_agents = env._num_players
 agents_prefix = "player_"
-agents_mob = mob.Mob(config, logdir, n_agents, agents_prefix)
+agents_mob = mob.Mob(config, logdir, n_agents, agents_prefix, load_train_ds=False)
 agents_mob.create_agents(env.obs_space, env.act_space, step)
-train_datasets = agents_mob.get_datasets(mode="train")
+eval_datasets = agents_mob.get_datasets(mode="eval")
 train_agents = dreamer_common.CarryOverStateMultiAgent(agents_mob.train_mob, n_agents, agents_prefix)
-train_agents(train_datasets)
+train_agents(eval_datasets)
 
 agents_mob.load_agents()
-
 inner_env = env._env._env._env._env
 agent_mode = "eval"
 scale = 2
