@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 
 
 def load_config():
@@ -54,3 +55,26 @@ def parse_ma_dreams(agents_dreams):
                 agent_result[data_type][mem_id] = {i: d.squeeze() for i, d in enumerate(np.split(memory, t, axis=0))}
         agents_result[player_id] = agent_result
     return agents_result
+
+def parse_dreamer_logs(path, metric_name):
+    counter = 0
+    hist = list()
+    episodes = list()
+    for e in tf.compat.v1.train.summary_iterator(path):
+        for v in e.summary.value:
+            if v.tag == metric_name:
+                hist.append(float(tf.make_ndarray(v.tensor)))
+                episodes.append(e.step/1000)
+                counter += 1
+    return {"episodes": episodes, "metric": hist}
+
+
+def smooth(scalars, weight):  # Weight between 0 and 1
+    last = scalars[0]  # First value in the plot (first timestep)
+    smoothed = list()
+    for point in scalars:
+        smoothed_val = last * weight + (1 - weight) * point  # Calculate smoothed value
+        smoothed.append(smoothed_val)                        # Save it
+        last = smoothed_val                                  # Anchor the last smoothed value
+
+    return smoothed
