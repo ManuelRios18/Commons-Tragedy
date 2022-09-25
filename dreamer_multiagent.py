@@ -40,7 +40,4 @@ atari_config = {
 default_config.update(atari_config)
 config = dreamer_common.Config(default_config)
 
-
-#env = gym.make('MiniGrid-DoorKey-6x6-v0')
-#env = gym_minigrid.wrappers.RGBImgPartialObsWrapper(env)
 dv2.train(env, testing_env, config)

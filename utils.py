@@ -1,4 +1,5 @@
 import json
+import pickle
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -56,6 +57,7 @@ def parse_ma_dreams(agents_dreams):
         agents_result[player_id] = agent_result
     return agents_result
 
+
 def parse_dreamer_logs(path, metric_name):
     counter = 0
     hist = list()
@@ -78,3 +80,16 @@ def smooth(scalars, weight):  # Weight between 0 and 1
         last = smoothed_val                                  # Anchor the last smoothed value
 
     return smoothed
+
+
+def save_pickle(filename, data):
+    outfile = open(filename, 'wb')
+    pickle.dump(data, outfile)
+    outfile.close()
+
+
+def load_pickle(filename):
+    infile = open(filename, 'rb')
+    data = pickle.load(infile)
+    infile.close()
+    return data
