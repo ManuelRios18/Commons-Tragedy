@@ -100,8 +100,10 @@ while dreams_counter["player_0"] < total_dreams:
             dream_number = dreams_counter[agent_name]
             dream = parsed_dreams[agent_name]["dream"][dream_id]
             gt = parsed_dreams[agent_name]["gt"][dream_id]
-            video_path = os.path.join(dreams_root, agent_name, "videos", f"dream_{dream_number}.mp4")
-            imageio.mimsave(video_path, list(dream.values()))
+            dream_video_path = os.path.join(dreams_root, agent_name, "videos", f"dream_{dream_number}.mp4")
+            imageio.mimsave(dream_video_path, list(dream.values()))
+            gt_video_path = os.path.join(dreams_root, agent_name, "videos", f"gt{dream_number}.mp4")
+            imageio.mimsave(gt_video_path, list(gt.values()))
             utils.save_pickle(os.path.join(dreams_root, agent_name, "data", f"dream_{dream_number}.pickle"), dream)
             utils.save_pickle(os.path.join(dreams_root, agent_name, "data", f"gt_{dream_number}.pickle"), gt)
             dreams_counter[agent_name] += 1
