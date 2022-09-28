@@ -37,9 +37,10 @@ def text_display_fn(unused_timestep, unused_player_index: int) -> str:
 def main(argv):
   del argv  # Unused.
   install_substrate("commons_harvest_uniandes")
-  substrate_config = {"prob_type": "meltingpot", "map_name": "two_agents_small"}
+  substrate_config = {"prob_type": "meltingpot", "map_name": "four_agents_small"}
   level_playing_utils.run_episode(
-      "WORLD.RGB",
+      #"WORLD.RGB",
+      "RGB",
       {},  # Settings overrides
       _ACTION_MAP,
       game.get_config(substrate_config),
