@@ -611,19 +611,19 @@ WWWWWWWWWWWWWWWWW
         beam_length = 3
         beam_radius = 1
         ascii_map = """
-    WWWWWWWWWWWWWWWWW
-    W       P       W
-    W P          P  W
-    W       A       W
-    W      AAA      W
-    WP    AAAAA    PW
-    W      AAA      W
-    W       A       W
-    W               W
-    W P           P W
-    W       P       W
-    WWWWWWWWWWWWWWWWW
-    """
+WWWWWWWWWWWWWWWWW
+W       P       W
+W P          P  W
+W       A       W
+W      AAA      W
+WP    AAAAA    PW
+W      AAA      W
+W       A       W
+W               W
+W P           P W
+W       P       W
+WWWWWWWWWWWWWWWWW
+"""
     elif map_name == "four_agents_small":
         num_players = 4
         beam_length = 3
