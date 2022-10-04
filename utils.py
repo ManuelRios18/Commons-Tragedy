@@ -1,5 +1,7 @@
+import os
 import json
 import pickle
+import pathlib
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -93,3 +95,12 @@ def load_pickle(filename):
     data = pickle.load(infile)
     infile.close()
     return data
+
+
+def create_player_dirs(root_dir, parent_name, ids):
+    r = {}
+    for player_id in ids:
+        path = pathlib.Path(os.path.join(root_dir, parent_name, player_id))
+        r[player_id] = str(path)
+        path.mkdir(parents=True, exist_ok=True)
+    return r

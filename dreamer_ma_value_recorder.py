@@ -1,10 +1,11 @@
+import os
+import utils
 import numpy as np
 import time
 import dreamerv2.api as dv2
 import pathlib
 import ruamel.yaml as yaml
 import dreamerv2.mob as mob
-from dmlab2d.ui_renderer import pygame
 import dreamerv2.agent as dreamer_agent
 import substrates as substrates_handler
 import dreamerv2.common as dreamer_common
@@ -14,8 +15,8 @@ from adapters.env_creator import EnvCreator
 substrate_name = "commons_harvest_uniandes"
 substrate_config = {"prob_type": "meltingpot",
                     "map_name": "two_agents_small"}
-
 log_dir = "logs/dreamerv2_ma_2p"
+n_simulations = 500
 
 default_config = yaml.safe_load(pathlib.Path('config/dreamer_configs.yaml').read_text())['defaults']
 atari_config = {
@@ -58,7 +59,7 @@ else:
     env = dreamer_common.NormalizeAction(env)
 env = dreamer_common.TimeLimit(env, config.time_limit)
 
-observation = env.reset()
+
 step = dreamer_common.Counter()
 
 n_agents = env._num_players
@@ -73,36 +74,41 @@ agents_mob.load_agents()
 inner_env = env._env._env._env._env
 agent_mode = "eval"
 scale = 2
-pygame.init()
-pygame.display.set_caption('DM Lab2d')
+env.reset()
 shape = inner_env.world_view.shape
-game_display = pygame.display.set_mode((int(shape[1] * scale), int(shape[0] * scale)))
+player_log_paths = utils.create_player_dirs(log_dir, "episode_logs",
+                                            [f"{agents_prefix}{a_id}" for a_id in range(n_agents)])
 
-state = {f"{agents_prefix}{a_id}": None for a_id in range(n_agents)}
-score = 0
-agents_scores = {f"{agents_prefix}{a_id}": 0 for a_id in range(n_agents)}
-for sim_step in range(1000):
-    image_to_render = inner_env.world_view
-    image_to_render = np.transpose(image_to_render, (1, 0, 2))
-    surface = pygame.surfarray.make_surface(image_to_render)
-    rect = surface.get_rect()
-    surf = pygame.transform.scale(surface, (int(rect[2] * scale), int(rect[3] * scale)))
-    game_display.blit(surf, dest=(0, 0))
-    pygame.display.update()
-    for player_id, obs in observation.items():
-        agents_scores[player_id] += obs["reward"]
-        obs["RGB"] = np.expand_dims(obs["RGB"], 0)
-        obs["reward"] = np.array([obs["reward"]])
-        obs["is_first"] = np.array([obs["is_first"]])
-        obs["is_last"] = np.array([obs["is_last"]])
-        obs["is_terminal"] = np.array([obs["is_terminal"]])
+for sim_num in range(n_simulations):
 
-    actions, state = agents_mob.mob_policy(observation, state, agent_mode)
-    mob_actions = {}
-    for p_id, ac in actions.items():
-        mob_actions[p_id] = {"action": np.array(ac["action"])[0]}
-    observation = env.step(mob_actions)
-    time.sleep(0.1)
-    print(agents_scores)
+    observation = env.reset()
+    state = {f"{agents_prefix}{a_id}": None for a_id in range(n_agents)}
+    agents_scores = {f"{agents_prefix}{a_id}": 0 for a_id in range(n_agents)}
+    episode_log = {f"{agents_prefix}{a_id}": {"obs": [], "state": [], "value": [], "action": []}
+                   for a_id in range(n_agents)}
 
-print("agent score: ", score)
+    for sim_step in range(1000):
+        for player_id, obs in observation.items():
+            agents_scores[player_id] += obs["reward"]
+            obs["RGB"] = np.expand_dims(obs["RGB"], 0)
+            obs["reward"] = np.array([obs["reward"]])
+            obs["is_first"] = np.array([obs["is_first"]])
+            obs["is_last"] = np.array([obs["is_last"]])
+            obs["is_terminal"] = np.array([obs["is_terminal"]])
+
+        actions, state, values = agents_mob.mob_policy_with_value(observation, state)
+        for player_id in episode_log.keys():
+            episode_log[player_id]["obs"].append(np.squeeze(observation[player_id]["RGB"]))
+            episode_log[player_id]["state"].append(state[player_id][0]["stoch"].numpy())
+            episode_log[player_id]["value"].append(float(values[player_id].numpy()))
+            episode_log[player_id]["action"].append(actions[player_id]["action"].numpy().argmax())
+
+        mob_actions = {}
+        for p_id, ac in actions.items():
+            mob_actions[p_id] = {"action": np.array(ac["action"])[0]}
+        observation = env.step(mob_actions)
+    print(f"Simulation {sim_num} scores: {agents_scores}")
+
+    for player_id in episode_log.keys():
+        pickle_name = os.path.join(player_log_paths[player_id], str(time.time()).replace(".", "") + ".pickle")
+        utils.save_pickle(pickle_name, episode_log[player_id])
